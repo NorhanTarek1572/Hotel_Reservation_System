@@ -1,10 +1,11 @@
 package OurPages;
+
+import Databases.DbActions;
 import java.awt.Color;
-import OurFiles.*;
+
 import Ourclasses.Employee;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.sql.ResultSet;
+
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -13,16 +14,23 @@ public class Employees extends javax.swing.JFrame {
 
     public Employees() {
         initComponents();
+        ResultSet result = Employee.Get();
         DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
-        String[] ourDate, checkedData;
-        checkedData = null; 
-        ourDate = Employee.Get();
-        for(int i=0;i<ourDate.length;i++)
-        {
-            checkedData = ourDate[i].split("\\s");                    
-            Object row[] = {checkedData[0], checkedData[1], checkedData[2], checkedData[3], checkedData[4]};
-            model.addRow(row);
+        
+        try{
+            while(result.next())
+            {
+               Object[]  row  = {result.getString(1),result.getString(2),result.getString(3),result.getString(4),result.getString(5)}  ;
+    
+                model.addRow(row);
+            }
+            result.close();
         }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+        
+  
     }
 
    
@@ -237,29 +245,15 @@ public class Employees extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "All Fields Are Required");
         }
         else{
-            String[] ourDate, checkedData;
-            checkedData = null;
-            ourDate = Employee.Get() ;
-            boolean flag = false;
-            for (int i = 0; i < ourDate.length; i++) {
-                checkedData = ourDate[i].split("\\s");
-                if (checkedData[0].equals(e1.getId()) ) {
-                    flag = true;
-                    break;
-                } else {
-                    continue;
-                }
-            }
-            if (flag) {
-                JOptionPane.showMessageDialog(null, "This Employee ID Is Already Exist");
-            }
-            else{
-                Employee.Add(e1.getId() , e1.getName(), e1.getEmail(), e1.getDepartment(),e1.getSalary());
-                setVisible(false);
-                new Employees().setVisible(true);
-            }
-            
-        }
+            try {
+              
+                    Employee.Add(e1.getId() , e1.getName(), e1.getEmail(), e1.getDepartment(),e1.getSalary());
+                    setVisible(false);
+                    new Employees().setVisible(true);
+            } 
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, e);
+            }}
     }//GEN-LAST:event_jButton2ActionPerformed
 // remove
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -269,7 +263,7 @@ public class Employees extends javax.swing.JFrame {
             int id = Integer.parseInt(jTable1.getModel().getValueAt(selectedRow, 0).toString());
             
             Employee.Remove(id);
-            JOptionPane.showMessageDialog(null, "Employee Deleted");
+           
             setVisible(false);
             new Employees().setVisible(true);
         }
@@ -292,67 +286,45 @@ public class Employees extends javax.swing.JFrame {
         int selectedRow = jTable1.getSelectedRow();
         int checkedId = Integer.parseInt(jTable1.getModel().getValueAt(selectedRow, 0).toString());
         
-        String[] ourDate, checkedData;
-        checkedData = null;
-        ourDate = Employee.Get();
-        boolean flag = false;
-        for (int i = 0; i < ourDate.length; i++) {
-            checkedData = ourDate[i].split("\\s");
-            if (! checkedData[0].equals(e1.getId() )) {
-                flag = true;
-                break;
-            } else {
-                continue;
-            }
-        }
-        if (flag) {
-            Employee.Update(checkedId, e1.getId() , e1.getName(), e1.getEmail(), e1.getDepartment(),e1.getSalary() );
-            JOptionPane.showMessageDialog(null, "Employee Updated");
+       
+        try {
+             Employee.Update(checkedId, e1.getId() , e1.getName(), e1.getEmail(), e1.getDepartment(),e1.getSalary() );
             setVisible(false);
             new Employees().setVisible(true);
             
             
+        } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, e );
         }
-        else{
-           JOptionPane.showMessageDialog(null, "This Employee ID Is Already Exist");
-        }
-        
-        
+           
+    
     }//GEN-LAST:event_jButton3ActionPerformed
 // my table
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        jTextField1.setEditable(false); 
+        
         int index = jTable1.getSelectedRow();
         TableModel model = jTable1.getModel();
         String checkedId = model.getValueAt(index, 0).toString();
-        ArrayList<String> ourDate = new ArrayList<String>();
-        File file = new File(Employee.getPemployee() );
-        String info = "";       
+        
+        ResultSet result = DbActions.getDate("select * from employee where id = " + checkedId + " ");
         try{
-            Scanner in = new Scanner(file);
-            while (in.hasNext()){
-                ourDate.add(in.nextLine());
-            }
-            
-            String[] checkedDate = null;           
-            for(int i=0;i<ourDate.size();i++)
+            while (result.next())
             {
-                info = ourDate.get(i);
-                checkedDate = info.split("\\s");
-                if(Integer.parseInt(checkedDate[0]) == Integer.parseInt(checkedId)){
-                    jTextField1.setText(checkedDate[0]);
-                    jTextField2.setText(checkedDate[1]);
-                    jTextField3.setText(checkedDate[2]);                   
-                    jComboBox1.setSelectedItem(checkedDate[3]);
-                    jTextField4.setText(checkedDate[4]);
-                }                    
-            }            
+                if(Integer.parseInt(result.getString(1)) == Integer.parseInt(checkedId)){
+                    jTextField1.setText(result.getString(1));
+                    jTextField2.setText(result.getString(2));
+                    jTextField3.setText(result.getString(3));                   
+                    jComboBox1.setSelectedItem(result.getString(4));
+                    jTextField4.setText(result.getString(5));
+                }
+            }
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
-        } 
+        }
     }//GEN-LAST:event_jTable1MouseClicked
 
-   
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

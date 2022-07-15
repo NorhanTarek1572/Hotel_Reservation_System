@@ -1,23 +1,18 @@
 package Ourclasses;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Scanner;
+import Databases.DbActions;
+
+import java.sql.ResultSet;
+
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Norhan Tarek
- */
 public class Room {
    //***********************************
    private int number;
    private String type;
    private double price ;
    private String status;
-   final  static String proom="D:\\projects\\oop\\Hotel_Reservation_System_v2\\src\\OurFiles\\Rooms.txt";
-   Service serv = new Service();
+    Service serv = new Service();
 //*************************************** 
 
     public int getNumber() {
@@ -60,107 +55,71 @@ public class Room {
         this.serv = serv;
     }
 
-    public static String getProom() {
-        return proom;
-    }
+   
     
     
-     //=====================================================(**************************)==============================
+    //============================================**************************==============================
     public static void Add(int roomNo, String roomType, double price, String roomStatus){ //For Rooms
-        try{
-            FileWriter file = new FileWriter(proom, true);
-            file.write(roomNo + " " + roomType + " " + price + " " + roomStatus + "\n");
-            file.close();
-            JOptionPane.showMessageDialog(null, "Room Added Successfully");
-        }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(null, e);
-        }       
-        
-        }
-        //*******************************
-    public static void Update(int checkedId, int roomNo, String roomType, double price, String roomStatus){
-        ArrayList<String> ourDate = new ArrayList<String>();
-        File file = new File(proom);
-        String info = "";
-        
-        try{
-            Scanner in = new Scanner(file);
-            while (in.hasNext()){
-                ourDate.add(in.nextLine());
-            }
-            
-            String[] checkedDate = null;           
-            for(int i=0;i<ourDate.size();i++)
-            {
-                info = ourDate.get(i);
-                checkedDate = info.split("\\s");
-                if(Integer.parseInt(checkedDate[0]) == checkedId)
-                    ourDate.set(i,roomNo + " " + roomType + " " + price + " " + roomStatus);
-            }
-            
-            FileWriter write = new FileWriter(proom);
-            for(int i=0;i<ourDate.size();i++)    
-                write.write(ourDate.get(i)+"\n");
-            write.close();
-        }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(null, e);
-        }       
-        
-        }
-        //*******************************
-    public static String[] Get(){
-            
-            ArrayList<String> data = new ArrayList<String>();
-            String[] info = null;
-            File file = new File(proom);
-            try{
-                Scanner in = new Scanner(file);
-                while(in.hasNext()){
-                    data.add(in.nextLine());
+       // file.write(roomNo + " " + roomType + " " + price + " " + roomStatus + "\n");
+          try{
+                
+                ResultSet rs = DbActions.getDate( "SELECT * FROM room  WHERE id ="+roomNo+" " );
+                if(rs.next())
+                {
+                   JOptionPane.showMessageDialog(null, "This room Is Already Exist");
+                   
                 }
-                info = data.toArray(new String[0]);
+                else{
+                    DbActions.setData(" INSERT INTO room VALUES (  " +roomNo+ " ,'"+roomType+"'  ,"+price+" , '"+roomStatus+"' ) ", "Room Is Added" );
+                   
+                }
+        }
+             catch(Exception e){
+                    JOptionPane.showMessageDialog(null, e);
+
+                }
+            
+     
+        
+        }
+   //*******************************************************************************************
+    public static void Update(int checkedId, int roomNo, String roomType, double price, String roomStatus){
+         //ourDate.set(i,roomNo + " " + roomType + " " + price + " " + roomStatus);
+        try {
+              DbActions.setData( "UPDATE room SET id= " +roomNo+ " ,type= '"+roomType+"',price= "+price+"  ,status= '"+roomStatus+"' WHERE id= " +checkedId+" " , "Room Update Successfully" );
+              
+            } catch (Exception e) {
+                 JOptionPane.showMessageDialog(null, e);
+            }
+        
+        }
+    //*******************************************************************************************
+    public static  ResultSet Get(){
+           // return all valuse in the table 
+             ResultSet rs = null;
+            try{
+                  rs= DbActions.getDate("SELECT * FROM room WHERE 1");
+            
             }
             catch(Exception e){
                 JOptionPane.showMessageDialog(null, e);
             }
-            return info;
+            return rs;
 
         }
-        //*******************************
+    //*******************************************************************************************
     public static void Remove(int id){
 
-            ArrayList<String> ourDate = new ArrayList<String>();
-            File file = new File(proom);
-            String info = "";
+        try{
+              DbActions.setData(" DELETE FROM room  WHERE id = "+id+" ", " ROOM Deleted ");
 
-            try{
-                Scanner in = new Scanner(file);
-                while (in.hasNext()){
-                    ourDate.add(in.nextLine());
-                }
-
-                String[] checkedDate = null;            
-                for(int i=0;i<ourDate.size();i++)
-                {
-                    info = ourDate.get(i);
-                    checkedDate = info.split("\\s");
-                    if(Integer.parseInt(checkedDate[0]) == id)
-                        ourDate.remove(i);
-                }
-
-                FileWriter write = new FileWriter(proom);
-                for(int i=0;i<ourDate.size();i++)    
-                    write.write(ourDate.get(i)+"\n");
-                write.close();
-            }
-            catch(Exception e){
-                JOptionPane.showMessageDialog(null, e);
-            }
-         }
-    //================================================================================================================
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
         
+         }
+    //*******************************************************************************************    
         
     
     

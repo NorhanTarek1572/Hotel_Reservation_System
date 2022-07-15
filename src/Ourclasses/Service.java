@@ -1,9 +1,9 @@
 package Ourclasses;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Scanner;
+import Databases.DbActions;
+
+import java.sql.ResultSet;
+
 import javax.swing.JOptionPane;
 
 /**
@@ -16,8 +16,7 @@ public class Service {
     private int serv_num;
     private  double  serv_price ;
     private  String serv_status;
-    final static  String pservices = "D:\\projects\\oop\\Hotel_Reservation_System_v2\\src\\OurFiles\\Services.txt";
-//=============================== getter and setter ===========================
+   //=============================== getter and setter ===========================
 
     public String getServ_name() {
         return serv_name;
@@ -51,101 +50,60 @@ public class Service {
         this.serv_status = serv_status;
     }
 
-    public static String getPservices() {
-        return pservices;
-    }
     
     
- //*********************************************************
+    //*******************************************************************************************
      public static void Add(int serviceNo, String serviceName, double price, String serviceStatus){ //For Services
         try{
-            FileWriter file = new FileWriter(pservices, true);
-            file.write(serviceNo + " " + serviceName + " " + price + " " + serviceStatus + "\n");
-            file.close();
-            JOptionPane.showMessageDialog(null, "Service Added Successfully");
+                String Query  =" SELECT * FROM service WHERE  id = "+serviceNo+" ";
+                ResultSet rs = DbActions.getDate(Query);
+                if(rs.next())
+                {
+                   JOptionPane.showMessageDialog(null, "This Service Number Is Already Exist");
+                }
+                else{
+                    DbActions.setData(" INSERT INTO service VALUES (" +serviceNo+ " ,'"+serviceName+"'  ,"+price+" , '"+serviceStatus+"') ", "Service Added Successfully" ); 
+                }
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }       
     }
-    //***************************************************
+    //*******************************************************************************************
      public static void Remove(int id){
-        ArrayList<String> ourDate = new ArrayList<String>();
-        File file = new File(pservices);
-        String info = "";
-        
+       
         try{
-            Scanner in = new Scanner(file);
-            while (in.hasNext()){
-                ourDate.add(in.nextLine());
-            }
-            
-            String[] checkedDate = null;            
-            for(int i=0;i<ourDate.size();i++)
-            {
-                info = ourDate.get(i);
-                checkedDate = info.split("\\s");
-                if(Integer.parseInt(checkedDate[0]) == id)
-                    ourDate.remove(i);
-            }
-            
-            FileWriter write = new FileWriter(pservices);
-            for(int i=0;i<ourDate.size();i++)    
-                write.write(ourDate.get(i)+"\n");
-            write.close();
+              DbActions.setData(" DELETE FROM service WHERE id = "+id+" ", " Services Deleted ");
+
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }
     }
-    //**********************************************
+   //*******************************************************************************************
      public static void Update (int checkedId, int serviceNo, String serviceName, double price, String serviceStatus){
-        ArrayList<String> ourDate = new ArrayList<String>();
-        File file = new File(pservices);
-        String info = "";
+      try {
+          DbActions.setData("UPDATE service SET id="+serviceNo+" ,name='"+serviceName+ "',price="+price+",status= '"+serviceStatus+"' WHERE id = "+ checkedId+" "," Services updated Successfully" );
+           }
+      catch (Exception e) {
+                 JOptionPane.showMessageDialog(null, e);
+            }     
+    }
+    //*******************************************************************************************
+       public static ResultSet Get(){
+           // return all valuse in the table 
+             ResultSet rs = null;
+            try{
+                  rs= DbActions.getDate("SELECT * FROM service WHERE 1");
+            
+            }
+            catch(Exception e){
+                JOptionPane.showMessageDialog(null, e);
+            }
+            return rs;
         
-        try{
-            Scanner in = new Scanner(file);
-            while (in.hasNext()){
-                ourDate.add(in.nextLine());
-            }
-            
-            String[] checkedDate = null;           
-            for(int i=0;i<ourDate.size();i++)
-            {
-                info = ourDate.get(i);
-                checkedDate = info.split("\\s");
-                if(Integer.parseInt(checkedDate[0]) == checkedId)
-                    ourDate.set(i,serviceNo + " " + serviceName + " " + price + " " + serviceStatus);
-            }
-            
-            FileWriter write = new FileWriter(pservices);
-            for(int i=0;i<ourDate.size();i++)    
-                write.write(ourDate.get(i)+"\n");
-            write.close();
-        }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(null, e);
-        }       
     }
-    //***********************************
-       public static String[] Get(){
-        ArrayList<String> data = new ArrayList<String>();
-        String[] info = null;
-        File file = new File(pservices);
-        try{
-            Scanner in = new Scanner(file);
-            while(in.hasNext()){
-                data.add(in.nextLine());
-            }
-            info = data.toArray(new String[0]);
-        }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(null, e);
-        }
-        return info;
-    }
-    //********************************************
+    //*******************************************************************************************
       
     
     

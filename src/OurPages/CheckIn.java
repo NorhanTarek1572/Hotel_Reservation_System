@@ -1,46 +1,49 @@
 package OurPages;
 import java.awt.Color;
 import Ourclasses.*;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.swing.JOptionPane;
 
 public class CheckIn extends javax.swing.JFrame {
 
-    /**
-     * Creates new form CheckIn
-     */
     public CheckIn() {
         initComponents();
+       // make room number and price is uneditable 
+       
         jTextField4.setEditable(false);
         jTextField5.setEditable(false);
-        SimpleDateFormat myformat = new SimpleDateFormat("yyyy/MM/dd");
+        // get time and date by defult 
+        SimpleDateFormat myformat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
         jTextField4.setText(myformat.format(cal.getTime()));
     }
-    String roomType;
-    String roomNo;
-    String price;
     
+    Room ro1 =new Room();
+
     public void roomDetails(){
+        // make room number and price empty 
         jComboBox3.removeAllItems();
         jTextField5.setText("");
-        roomType = (String) jComboBox2.getSelectedItem();
+        
+        ro1.setType(jComboBox2.getSelectedItem().toString());
+        ResultSet result = Room.Get(); // all rooms data 
+        
         try{
-            String[] ourDate, checkedData;
-            checkedData = null; 
-            ourDate = Room.Get();
-            for(int i=0;i<ourDate.length;i++)
+            while(result.next())
             {
-                checkedData = ourDate[i].split("\\s");
-                if(checkedData[1].equals(roomType) && checkedData[3].equals("Not-Booked")){
-                    jComboBox3.addItem(checkedData[0]);
+                if(result.getString(2).equals(ro1.getType()) && result.getString(4).equals("Not-Booked")){
+                    jComboBox3.addItem(result.getString(1));
                 }
             }
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }
+        
+       
+        
     }
 
    
@@ -127,6 +130,11 @@ public class CheckIn extends javax.swing.JFrame {
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(506, 304, -1, -1));
 
         jTextField4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField4ActionPerformed(evt);
+            }
+        });
         getContentPane().add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(506, 339, 400, -1));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -219,38 +227,20 @@ public class CheckIn extends javax.swing.JFrame {
         g1.setId(Integer.valueOf(jTextField3.getText()) );
         g1.setMobile( jTextField2.getText());
         g1.setName(jTextField1.getText());
-       
+        //room data 
         r1.setNumber( Integer.valueOf(jComboBox3.getSelectedItem().toString()));
         r1.setPrice(Double.valueOf(jTextField5.getText()));
         r1.setType(jComboBox2.getSelectedItem().toString());
         g1.setRoom(r1);
-       
         
-       /*/
-        if( g1.getId().equals("")  || g1.getName().equals("") || g1.getMobile().equals("") || g1.getGender().equals("") || g1.getCheck_in().equals("") || g1.getRoom().getType().equals("") || g1.getRoom().getNumber().equals("") || g1.getRoom().getPrice().equals("")){
-            JOptionPane.showMessageDialog(null, "All Fields Are Required");
-        }
-        else{
-        */
-            if(!String.valueOf(g1.getRoom().getPrice()).equals("")){
-                String[] ourDate, checkedData;
-                checkedData = null; 
-                ourDate = Room.Get();
-                for(int i=0;i<ourDate.length;i++)
-                {
-                    checkedData = ourDate[i].split("\\s");
-                    if(checkedData[0].equals(g1.getRoom().getNumber())){//ggggggg
-                        
-                        Room.Update(Integer.parseInt(roomNo), g1.getRoom().getNumber(),g1.getRoom().getType(), g1.getRoom().getPrice(), "Booked");
-                        //checkedData[3] = "Booked";//????????????????????????????????????????
-                    }
-                }
-               // FileHandler.Add(name, mobile, gender, id, checkInDate, roomType, Integer.parseInt(roomNo), Float.parseFloat(price));
-               Guest.Add(g1.getName(), g1.getMobile() ,g1.getGender() , g1.getId()  , g1.getCheck_in() ,g1.getRoom().getType(), g1.getRoom().getNumber() , g1.getRoom().getPrice() );
+               
+            if(! String.valueOf( r1.getPrice()).equals("")){
+                Room.Update(r1.getNumber() , g1.getRoom().getNumber(),g1.getRoom().getType(), g1.getRoom().getPrice(), "Booked");
+            }
+            Guest.Add(g1.getName(), g1.getMobile() ,g1.getGender() , g1.getId()  , g1.getCheck_in() ,g1.getRoom().getType(), g1.getRoom().getNumber() , g1.getRoom().getPrice() );
                setVisible(false);
                 new CheckIn().setVisible(true);
-           // }           
-        }
+ 
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -281,22 +271,19 @@ public class CheckIn extends javax.swing.JFrame {
         setVisible(false);
         new CheckIn().setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
-
+// room type ===> set room number  from database
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         roomDetails();
     }//GEN-LAST:event_jComboBox2ActionPerformed
-
+// room num ==> set price from database 
     private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
-        roomNo = (String) jComboBox3.getSelectedItem();
+        ro1.setNumber((int )jComboBox3.getSelectedItem() );
         try{
-            String[] ourDate, checkedData;
-            checkedData = null; 
-            ourDate = Room.Get();
-            for(int i=0;i<ourDate.length;i++)
+            ResultSet result = Room.Get(); // return all data in room table 
+            while(result.next())
             {
-                checkedData = ourDate[i].split("\\s");
-                if(checkedData[0].equals(roomNo)){
-                    jTextField5.setText(checkedData[2]);
+                if(result.getString(1).equals(ro1.getNumber())){
+                    jTextField5.setText(result.getString(3)); // set price from database 
                 }
             }
         }
@@ -305,9 +292,11 @@ public class CheckIn extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jComboBox3ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField4ActionPerformed
+
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

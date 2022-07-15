@@ -1,10 +1,6 @@
-
 package Ourclasses;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Scanner;
+import Databases.DbActions;
+import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 
 public class Receptionist {
@@ -13,10 +9,8 @@ public class Receptionist {
     private String password ;
     private String name ;
     private String address ;
-    final static String  preception ="D:\\projects\\oop\\Hotel_Reservation_System_v2\\src\\OurFiles\\Receptionist.txt";
-    //****************************************************************
-
-    public String getEmail() {
+    //====================**************=============================
+   public String getEmail() {
         return email;
     }
 
@@ -48,42 +42,35 @@ public class Receptionist {
         this.address = address;
     }
 
-    public static String getPreception() {
-        return preception;
-    }
-    
-    
-    //******************************************************************
+    //*******************************************************************************************
      public static void Add(String name, String email, String password, String Address){ //For Receptionist
         try{
-            FileWriter file = new FileWriter(preception, true);
-            file.write(name + " " + email + " " + password + " " + Address + "\n");
-            file.close();
-            JOptionPane.showMessageDialog(null, "User Added Successfully, Now You Can Login");
+            
+        String Query = "insert into receptionist values(' "+name+" ','"+email+"','"+password+"','"+Address+"')";
+            DbActions.setData(Query, "Done");
+            
+            
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }       
     }
-     
-     public static String[] Get(){
-        ArrayList<String> data = new ArrayList<String>();
-        String[] info = null;
-        File file = new File(preception);
-        try{
-            Scanner in = new Scanner(file);
-            while(in.hasNext()){
-                data.add(in.nextLine());
+     //*******************************************************************************************
+     public static boolean login(String email, String password){
+     try{
+            String Query = "SELECT * FROM  receptionist WHERE email='"+email+"' and  password= '"+password+ "' ";
+            ResultSet rs = DbActions.getDate(Query);
+            if(rs.next())
+            {
+                return true;
             }
-            info = data.toArray(new String[0]);
+            else
+                return false;
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
+            return false;
         }
-        return info;
     }
-     
-     public  void checke_register() {
-     //Make sure that there is no such email    
-    }
+    //*******************************************************************************************
 }

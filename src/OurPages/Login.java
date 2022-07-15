@@ -206,39 +206,28 @@ public class Login extends javax.swing.JFrame {
        r1.setEmail(jTextField1.getText());
        r1.setPassword( jPasswordField1.getText());
        
-        int check = 0;
+       
         if (r1.getEmail().equals("") || r1.getPassword().equals("")){
-            check = 1;
+           
             JOptionPane.showMessageDialog(null, "Email and Password Are Required");
         }
         else{
-            try{
-                String[] ourDate, checkedData;
-                checkedData = null;
-                ourDate = Receptionist.Get();
-                boolean flag = false;
-                for(int i=0;i<ourDate.length;i++)
-                {
-                    checkedData = ourDate[i].split("\\s");                    
-                    if(checkedData[2].equals(r1.getEmail()) && checkedData[3].equals(r1.getPassword())){
-                        flag = true;
-                        break;
-                    }
-                    else{
-                        continue;
-                    }
-                }
-                if(flag){
-                    setVisible(false);
+            try {
+                if (Receptionist.login(r1.getEmail(), r1.getPassword() ) ){
+                    setVisible(false );
                     new HomePage().setVisible(true);
+                    
                 }
-                else{
-                    JOptionPane.showMessageDialog(null, "Incorrect Email or Password");
+                else {
+                 JOptionPane.showMessageDialog(null, "Incorrect Email or Password");
                 }
-            }
-            catch(Exception e){
+            } 
+            catch (Exception e) {
                 JOptionPane.showMessageDialog(null, e);
             }
+            
+                   
+            
         }
         
     }//GEN-LAST:event_jButton2ActionPerformed

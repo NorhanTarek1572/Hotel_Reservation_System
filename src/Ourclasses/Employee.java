@@ -1,15 +1,10 @@
 package Ourclasses;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Scanner;
+import Databases.DbActions;
+import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Norhan Tarek
- */
+
 public class Employee {
     
     private String name ;
@@ -20,10 +15,8 @@ public class Employee {
     private double salary ;
     private String password ;
     private  String mobile ;
-    
-    final static String pemployee ="D:\\projects\\oop\\Hotel_Reservation_System_v2\\src\\OurFiles\\Employees.txt";
-    //==========================
-    //=========================================================***********==========================================
+   
+    //===============================***********==========================================
   
     public String getName() {
         return name;
@@ -89,83 +82,67 @@ public class Employee {
         this.salary = salary;
     }
 
-    public static String getPemployee() {
-        return pemployee;
-    }
-      
+     
     
     //=====================================================(**************************)==============================
         public static void Add(int id , String name ,  String email, String department , double salary ){
-         
+          // add new employee and make sure that Employee ID Is not Already Exist
             try{
-            FileWriter file = new FileWriter(pemployee, true);
-            file.write(id + " " + name + " " + email + " " + department + " " + salary + "\n");
-            file.close();
-            JOptionPane.showMessageDialog(null, "Employee Added Successfully");
+                
+                String Query  ="SELECT * FROM `employee` WHERE id ="+id+"";
+                ResultSet rs = DbActions.getDate(Query);
+                
+                if(rs.next())
+                {
+                   JOptionPane.showMessageDialog(null, "This Employee ID Is Already Exist");
+                   
+                }
+                else{
+                    DbActions.setData(" insert into  employee values(  " +id+ " ,'"+name+"'  ,'"+email+"' , '"+department+"' ," +salary+ ") ", "Employee Added Successfully" );
+                   
+                }
         }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(null, e);
-        }  
-        
+             catch(Exception e){
+                    JOptionPane.showMessageDialog(null, e);
+
+                }
+            
+     
         }
         //*******************************
         public static void Update(int checkedId,int id , String name ,  String email, String department , double salary){
-
-            ArrayList<String> ourDate = new ArrayList<String>();
-            File file = new File(pemployee);
-            String info = "";
-
+            try {
+                String k ="UPDATE employee SET id =" +id+ " ,name ='"+name+"' , email ='"+email+"',department= '"+department+"' ,salary="+salary+"   WHERE id= " +checkedId+"  "; 
+              DbActions.setData(k , "Employee updated Successfully" );
+              ;
+            } catch (Exception e) {
+                 JOptionPane.showMessageDialog(null, e);
+            }
+               /*
+          // in case no table 
             try{
-
-                Scanner in = new Scanner(file);
-                while (in.hasNext()){
-                    ourDate.add(in.nextLine()); // have all data in the file line by line 
+             ResultSet rsultSet = null;   
+            rsultSet = DbActions.getDate("SELECT * FROM `employee` WHERE id ="+id+" ");
+            if (rsultSet.next()){
+            DbActions.setData("  UPDATE `employee` SET `id`=" +id+ " ,`name`='"+name+"' ,`email`='"+email+"',`department`= '"+department+"' ,`salary`=" +salary+" WHERE id= " +checkedId+" ", "Employee Added Successfully" );
+            }
+            else { 
+            // cant find it 
+              JOptionPane.showMessageDialog(null, "This Employee ID Is not Exist");
+            }
                 }
-
-                String[] checkedDate = null;           
-                for(int i=0;i<ourDate.size();i++)
-                {
-                    info = ourDate.get(i);
-                    checkedDate = info.split("\\s");
-                    if(Integer.parseInt(checkedDate[0]) == checkedId)
-                        ourDate.set(i,id + " " + name + " " + email + " " + department + " " + salary);
-                }
-
-                FileWriter write = new FileWriter(pemployee);
-                for(int i=0;i<ourDate.size();i++)    
-                    write.write(ourDate.get(i)+"\n");
-                write.close();
-        }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }       
-            
+          */  
         }
         //*******************************
         public static void Remove(int id){
-         ArrayList<String> ourDate = new ArrayList<String>();
-        File file = new File(pemployee);
-        String info = "";
-        
+ 
         try{
-            Scanner in = new Scanner(file);
-            while (in.hasNext()){
-                ourDate.add(in.nextLine());
-            }
+              DbActions.setData(" DELETE FROM employee WHERE id = "+id+" ", " Employee Deleted ");
             
-            String[] checkedDate = null;            
-            for(int i=0;i<ourDate.size();i++)
-            {
-                info = ourDate.get(i);
-                checkedDate = info.split("\\s");
-                if(Integer.parseInt(checkedDate[0]) == id)
-                    ourDate.remove(i);
-            }
-            
-            FileWriter write = new FileWriter(pemployee);
-            for(int i=0;i<ourDate.size();i++)    
-                write.write(ourDate.get(i)+"\n");
-            write.close();
+      
         }
         catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
@@ -173,24 +150,26 @@ public class Employee {
         
         }
         //*******************************
-        public static String[] Get(){
-            ArrayList<String> data = new ArrayList<String>();
-            String[] info = null;
-            File file = new File(pemployee);
+        public static ResultSet Get(){
+           // return all valuse in the table 
+             ResultSet rs = null;
             try{
-                Scanner in = new Scanner(file);
-                while(in.hasNext()){
-                    data.add(in.nextLine());
-                }
-                info = data.toArray(new String[0]);
+                  rs= DbActions.getDate("SELECT * FROM employee WHERE 1");
+            
             }
             catch(Exception e){
                 JOptionPane.showMessageDialog(null, e);
             }
-            return info;
+            return rs;
         
         }
+        //***********************************************
+        public static ResultSet getselected(int id){
+        ResultSet rs = DbActions.getDate("select * from employee where id = " + id+ "");
+        return rs;
+             }
     //================================================================================================================
         
-        
-}
+     
+        }
+
