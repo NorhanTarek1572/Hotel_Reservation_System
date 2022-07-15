@@ -1,7 +1,7 @@
 package OurPages;
 import java.awt.Color;
 import javax.swing.JOptionPane;
-import OurFiles.*;
+import Ourclasses.*;
 
 public class FirstPage extends javax.swing.JFrame {
 
@@ -230,25 +230,25 @@ public class FirstPage extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3MouseExited
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String name = jTextField1.getText();
-        String email = jTextField2.getText();
-        String password = jPasswordField1.getText();
-        String Address = jTextField3.getText();
         
-        if (name.equals("") || email.equals("") || password.equals("") || Address.equals("")){
+        Receptionist r1 =new Receptionist();
+        r1.setAddress(jTextField3.getText());
+        r1.setEmail(jTextField2.getText());
+        r1.setName( jTextField1.getText());
+        r1.setPassword(jPasswordField1.getText());
+      
+        if (r1.getAddress().equals("") || r1.getEmail().equals("") || r1.getPassword().equals("") || r1.getName().equals("")){
             JOptionPane.showMessageDialog(null, "All Fields Are Required");
         }
             
-        else{          
-            FileHandler.Add(name, email, password, Address);
+        else{ 
+            Receptionist.Add(r1.getName(), r1.getEmail() , r1.getPassword() , r1.getAddress());
             setVisible(false);
             new FirstPage().setVisible(true);
         }      
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+   
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

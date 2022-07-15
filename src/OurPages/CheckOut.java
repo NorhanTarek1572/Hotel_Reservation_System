@@ -1,5 +1,5 @@
 package OurPages;
-import OurFiles.FileHandler;
+import Ourclasses.*;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -11,15 +11,7 @@ import java.util.Calendar;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 
-/**
- *
- * @author Mahmoud Haney
- */
 public class CheckOut extends javax.swing.JFrame {
 
     /**
@@ -29,7 +21,8 @@ public class CheckOut extends javax.swing.JFrame {
         initComponents();
         DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
         String[] ourDate, checkedData;
-        checkedData = null; ourDate = FileHandler.getGuest();
+        checkedData = null; 
+        ourDate = Guest.getGuest();
         for(int i=0;i<ourDate.length;i++)
         {
             checkedData = ourDate[i].split("\\s");                    
@@ -270,7 +263,7 @@ public class CheckOut extends javax.swing.JFrame {
         String roomNo = jTextField1.getText();
         try{
             String[] ourDate, checkedData;
-            checkedData = null; ourDate = FileHandler.getGuest();
+            checkedData = null; ourDate = Guest.getGuest();
             for(int i=0;i<ourDate.length;i++)
             {
                 checkedData = ourDate[i].split("\\s");
@@ -317,50 +310,62 @@ public class CheckOut extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        String name = jTextField2.getText();
-        String price = jTextField3.getText();
-        String checkOut = jTextField6.getText();
-        String noOfDaysStay = jTextField5.getText();
-        String totalAmount = jTextField7.getText();
-        roomNumber = jTextField1.getText();
+       
+        Guest g1 =new Guest();
+        Room r1 =new  Room();
+        
+        r1.setNumber(Integer.valueOf( jTextField1.getText() ));
+        r1.setPrice(Double.valueOf(jTextField3.getText()) );
+        g1.setRoom(r1);
+        
+        g1.setCheck_in(jTextField4.getText());
+        g1.setCheck_out(jTextField6.getText());
+        g1.setName(jTextField2.getText());
+        g1.setNum_of_days(Integer.parseUnsignedInt(jTextField5.getText()));
+        g1.setTotal_price(Double.valueOf(jTextField7.getText()) );
+        
+        
+      
         
         //To change the status of the room to Not Booked anymore
         String[] ourDate, checkedData;
-        checkedData = null; ourDate = FileHandler.getRoom();
+        checkedData = null; 
+        
+        ourDate = Room.Get();
         for(int i=0;i<ourDate.length;i++)
         {
             checkedData = ourDate[i].split("\\s");
             if(checkedData[0].equals(roomNumber)){//ggggggg
-                FileHandler.updateRoom(Integer.parseInt(roomNumber), Integer.parseInt(roomNumber), roomType, Float.parseFloat(price), "Not-Booked");
+                Room.Update(g1.getRoom().getNumber(), g1.getRoom().getNumber(), g1.getRoom().getType(), g1.getRoom().getPrice(), "Not-Booked");
             }
         }
         
-        FileHandler.deleteGuest(Integer.parseInt(roomNumber));
+       Guest.deleteGuest(g1.getRoom().getNumber());
         
         //=====To Print A Pdf with the details of the leaving guest=======
         String path = "E:\\Hotel_Bills\\";
         com.itextpdf.text.Document doc = new com.itextpdf.text.Document();
         
         try{
-            PdfWriter.getInstance(doc, new FileOutputStream(path + "" + name + ".pdf"));
+            PdfWriter.getInstance(doc, new FileOutputStream(path + "" + g1.getName()+ ".pdf"));
             doc.open();
             Paragraph paragraph1 = new Paragraph("                                                        Welcome To Our Hotel\n");
             doc.add(paragraph1);
             Paragraph paragraph2 = new Paragraph("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
             doc.add(paragraph2);
-            Paragraph paragraph3 = new Paragraph("\tCustomer Bill Name: " + name + "\nCustomer Details:\nName: "+ name + "\nPrice Per Night: "+ price + "\n");
+            Paragraph paragraph3 = new Paragraph("\tCustomer Bill Name: " +  g1.getName() + "\nCustomer Details:\nName: "+  g1.getName() + "\nPrice Per Night: "+ g1.getRoom().getPrice()+ "\n");
             doc.add(paragraph3);
             doc.add(paragraph2);
-            Paragraph paragraph4 = new Paragraph("Room Details:\nNumber: "+ jTextField1.getText() + "\nType: "+ roomType+ "\nPrice Per Night: " + jTextField3.getText()+"\n");
+            Paragraph paragraph4 = new Paragraph("Room Details:\nNumber: "+ jTextField1.getText() + "\nType: "+ g1.getRoom().getType()+ "\nPrice Per Night: " + jTextField3.getText()+"\n");
             doc.add(paragraph4);
             doc.add(paragraph2);
             Paragraph paragraph6 = new Paragraph("\n");
             doc.add(paragraph6);
             PdfPTable tb1 = new PdfPTable(4);
             tb1.addCell("Check-in Date:  " + jTextField4.getText());
-            tb1.addCell("Check-out Date:  " + checkOut);
-            tb1.addCell("Number of Days:  " + noOfDaysStay);
-            tb1.addCell("Total Price Paid:  " + totalAmount);
+            tb1.addCell("Check-out Date:  " + g1.getCheck_out());
+            tb1.addCell("Number of Days:  " + g1.getNum_of_days());
+            tb1.addCell("Total Price Paid:  " + g1.getTotal_price());
             doc.add(tb1);
             doc.add(paragraph2);
             Paragraph paragraph5 = new Paragraph("                             Thank you, We're Hoping visiting us again");
@@ -370,11 +375,11 @@ public class CheckOut extends javax.swing.JFrame {
             int a = JOptionPane.showConfirmDialog(null, "Do you want to print this Bill?","Select",JOptionPane.YES_NO_OPTION);
             if(a == 0){
                 try{
-                    if((new File("E:\\Hotel_Bills\\" + name + ".pdf")).exists())
+                    if((new File("E:\\Hotel_Bills\\" + g1.getName() + ".pdf")).exists())
                     {
                         Process p = Runtime
                                 .getRuntime()
-                                .exec("rundll32 url.dll,FileProtocolHandler E:\\Hotel_Bills\\" + name + ".pdf");
+                                .exec("rundll32 url.dll,FileProtocolHandler E:\\Hotel_Bills\\" +g1.getName()+ ".pdf");
                     }
                     else
                         System.out.println("The File is not Exist");

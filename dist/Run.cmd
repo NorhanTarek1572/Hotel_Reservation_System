@@ -1,1 +1,0 @@
-start javaw -jar Hotel_Reservation_System.jar

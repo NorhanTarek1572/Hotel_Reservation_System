@@ -1,5 +1,5 @@
 package OurPages;
-import OurFiles.FileHandler;
+import Ourclasses.*;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 
@@ -202,22 +202,25 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1MouseExited
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String email = jTextField1.getText();
-        String password = jPasswordField1.getText();
+       Receptionist r1 =new Receptionist();
+       r1.setEmail(jTextField1.getText());
+       r1.setPassword( jPasswordField1.getText());
+       
         int check = 0;
-        if (email.equals("") || password.equals("")){
+        if (r1.getEmail().equals("") || r1.getPassword().equals("")){
             check = 1;
             JOptionPane.showMessageDialog(null, "Email and Password Are Required");
         }
         else{
             try{
                 String[] ourDate, checkedData;
-                checkedData = null; ourDate = FileHandler.getLogin();
+                checkedData = null;
+                ourDate = Receptionist.Get();
                 boolean flag = false;
                 for(int i=0;i<ourDate.length;i++)
                 {
                     checkedData = ourDate[i].split("\\s");                    
-                    if(checkedData[2].equals(email) && checkedData[3].equals(password)){
+                    if(checkedData[2].equals(r1.getEmail()) && checkedData[3].equals(r1.getPassword())){
                         flag = true;
                         break;
                     }
@@ -240,9 +243,7 @@ public class Login extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+  
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
